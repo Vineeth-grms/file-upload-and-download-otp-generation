@@ -2,11 +2,14 @@ package com.example.repository;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -34,7 +37,7 @@ public class FileuploadAndDowloadDbConn {
 	}
 
 	public int fileUpload(FilesUploadAndDownload fileUp) {
-		String filePath = "C:\\Users\\Admin\\Desktop\\student.txt";
+		String filePath = "C:\\Users\\Admin\\Desktop\\git commands.txt";
 		String query = "insert into files (id,fileName ,fileData) values(?,?,?)";
 
 		// Use try-with-resources to ensure resources are closed
@@ -49,7 +52,7 @@ public class FileuploadAndDowloadDbConn {
 
 			// Execute the update
 			int result = pre.executeUpdate();
-			
+
 			return result;
 
 		} catch (FileNotFoundException e) {
@@ -64,6 +67,41 @@ public class FileuploadAndDowloadDbConn {
 		}
 
 		return 0; // Return 0 if an error occurred
+
+	}
+
+	public void fileDownload(int id, String outputPath) {
+		String query = "select fileName ,fileData from files where id = ?";
+
+		try (Connection con = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+				PreparedStatement pre = con.prepareStatement(query)) {
+			pre.setInt(1, id);
+			ResultSet res = pre.executeQuery();
+
+			if (res.next()) {
+				String fileName = res.getString("fileName");
+				InputStream inputStream = res.getBinaryStream("fileData");
+				String fullPath = outputPath + java.io.File.separator + fileName;
+				try (FileOutputStream fs = new FileOutputStream(fullPath)) {
+					byte[] buffer = new byte[1024];
+					int bytesRead;
+					while ((bytesRead = inputStream.read(buffer)) != -1) {
+						fs.write(buffer, 0, bytesRead);
+					}
+					System.out.println("File downloaded successfully as " + outputPath + " \"" + fileName);
+
+				} catch (Exception e) {
+					System.err.println("Error writing file to disk.");
+					e.printStackTrace();
+				}
+			} else {
+				System.out.println("File with ID " + id + " not found in the database.");
+
+			}
+
+		} catch (Exception e) {
+
+		}
 
 	}
 }

@@ -6,8 +6,8 @@ import com.example.repository.FileuploadAndDowloadDbConn;
 public class FilesUploadController {
 	public static void main(String[] args) {
 		FilesUploadAndDownload fu = new FilesUploadAndDownload();
-		fu.setId(111);
-		fu.setFileName("data.txt");
+		fu.setId(1234);
+		fu.setFileName("git-commands.txt");
 		FileuploadAndDowloadDbConn fb = new FileuploadAndDowloadDbConn();
 		int result = fb.fileUpload(fu);
 
